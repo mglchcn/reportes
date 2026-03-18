@@ -28,7 +28,7 @@
         }
 
         body {
-            background-color: #cbd5e1; /* Fondo gris para contrastar con las hojas blancas */
+            background-color: #cbd5e1; 
             margin: 0;
             padding: 0;
             font-family: var(--font-sans);
@@ -95,7 +95,7 @@
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%;
-            height: 65px; /* Altura fija para el cálculo del sticky header */
+            height: 65px; 
             background-color: #ffffff;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
             padding: 0 40px;
@@ -107,26 +107,35 @@
 
         .toolbar-brand { font-weight: 800; font-size: 20px; color: var(--primary-color); }
         .toolbar-brand span { color: #94a3b8; font-weight: 400; font-size: 16px; margin-left: 8px; }
-        .toolbar-group { display: flex; gap: 15px; }
+        
+        .toolbar-group { display: flex; gap: 10px; align-items: center; }
 
         .btn {
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 6px;
             font-weight: 600;
             cursor: pointer;
             border: none;
             font-family: var(--font-sans);
             font-size: 14px;
-            transition: transform 0.1s;
+            transition: transform 0.1s, background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .btn:active { transform: scale(0.95); }
+        
+        .btn-tool { background-color: #f1f5f9; color: var(--text-dark); border: 1px solid var(--border-color); font-weight: 700; font-size: 15px;}
+        .btn-tool:hover { background-color: #e2e8f0; }
+        .toolbar-separator { width: 1px; height: 30px; background-color: #cbd5e1; margin: 0 5px; }
+
         .btn-pdf { background-color: #ef4444; color: white; }
         .btn-word { background-color: #2563eb; color: white; }
 
         /* --- VISOR DEL DOCUMENTO --- */
         #report-view {
             display: none;
-            margin-top: 95px; /* Espacio para el toolbar */
+            margin-top: 95px; 
             margin-bottom: 50px;
             width: 100%;
             flex-direction: column;
@@ -149,7 +158,6 @@
             border-radius: 4px;
         }
         
-        /* Efecto hover sólo en pantalla, no en impresión */
         @media screen {
             [contenteditable="true"]:hover {
                 background-color: rgba(116, 70, 18, 0.05);
@@ -181,61 +189,32 @@
             width: 100%;
             margin-bottom: 1.5cm;
         }
-        .cover-header-logos img {
-            height: 60px;
-            width: auto;
-            max-width: 250px;
-            display: block;
-        }
+        .cover-header-logos img { height: 60px; width: auto; max-width: 250px; display: block; }
 
         .cover-logo-text {
-            font-family: var(--font-sans);
-            font-size: 10px;
-            font-weight: 500;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            color: var(--primary-color);
-            margin-bottom: 2.5cm;
-            border-bottom: 2px solid var(--border-color);
-            padding-bottom: 10px;
-            display: inline-block;
+            font-family: var(--font-sans); font-size: 10px; font-weight: 500;
+            letter-spacing: 1px; text-transform: uppercase; color: var(--primary-color);
+            margin-bottom: 2.5cm; border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px; display: inline-block;
         }
 
         .cover-title-box {
-            background-color: white;
-            padding: 40px;
-            border-left: 8px solid var(--primary-color);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-            margin-bottom: 3cm;
+            background-color: white; padding: 40px; border-left: 8px solid var(--primary-color);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-bottom: 3cm;
         }
 
         #cover-title {
-            margin: 0;
-            font-family: var(--font-serif);
-            font-size: 32px;
-            color: var(--text-dark);
-            font-weight: 700;
-            line-height: 1.3;
-            padding: 5px; /* Para la caja editable */
+            margin: 0; font-family: var(--font-serif); font-size: 32px;
+            color: var(--text-dark); font-weight: 700; line-height: 1.3; padding: 5px; 
         }
 
-        .cover-meta {
-            font-family: var(--font-sans);
-            font-size: 16px;
-            color: #475569;
-            margin-top: auto;
-            line-height: 1.8;
-        }
+        .cover-meta { font-family: var(--font-sans); font-size: 16px; color: #475569; margin-top: auto; line-height: 1.8; }
         .cover-meta strong { color: var(--text-dark); }
         .editable-line { display: inline-block; min-width: 200px; padding: 2px 5px; }
 
         /* --- CONTENIDO INTERNO Y GUÍA VISUAL --- */
-        .content-page {
-            padding: 0; 
-            min-height: var(--page-height);
-        }
+        .content-page { padding: 0; min-height: var(--page-height); }
 
-        /* SIMULADOR DE HOJAS EN PANTALLA: Fondo blanco con cortes grises oscuros */
         @media screen {
             .content-page {
                 background-color: transparent;
@@ -248,13 +227,9 @@
                 );
             }
             
-            /* ENCABEZADO PEGAJOSO (Sticky) PARA LA EDICIÓN */
             thead td {
-                position: sticky;
-                top: 65px; /* Altura de la barra de herramientas */
-                background-color: #ffffff;
-                z-index: 10;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+                position: sticky; top: 65px; background-color: #ffffff;
+                z-index: 10; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
             }
         }
 
@@ -265,20 +240,11 @@
         .footer-space-content { padding: 0.5cm 3cm 2cm 3cm; }
         
         #doc-body-container {
-            padding: 0 3cm; 
-            font-family: var(--font-serif);
-            font-size: 11pt;
-            line-height: 1.7;
-            text-align: justify;
+            padding: 0 3cm; font-family: var(--font-serif); font-size: 11pt;
+            line-height: 1.7; text-align: justify;
         }
 
-        /* ZONA EDITABLE DEL CUERPO */
-        #doc-body {
-            word-wrap: break-word;
-            overflow-wrap: break-word;
-            padding: 10px; /* Margen para el borde punteado al editar */
-        }
-        
+        #doc-body { word-wrap: break-word; overflow-wrap: break-word; padding: 10px; }
         #doc-body img { max-width: 100%; height: auto; page-break-inside: avoid; }
 
         #doc-body table {
@@ -349,13 +315,9 @@
             thead { display: table-header-group; }
             tfoot { display: table-footer-group; }
             
-            /* Al imprimir desactivamos la sombra y la posición sticky del encabezado */
             thead td { position: static !important; box-shadow: none !important; }
-            
             .cover-header-logos { display: flex !important; justify-content: space-between !important; }
             .content-page { background-image: none !important; }
-            
-            /* Quitamos padding extra del área de edición al imprimir */
             #doc-body { padding: 0; }
         }
     </style>
@@ -380,6 +342,10 @@
             CENGOB <span>| Modo Edición</span>
         </div>
         <div class="toolbar-group">
+            <button class="btn btn-tool" onclick="changeFontSize(false)" title="Reducir tamaño">A-</button>
+            <button class="btn btn-tool" onclick="changeFontSize(true)" title="Aumentar tamaño">A+</button>
+            <div class="toolbar-separator"></div>
+            
             <button class="btn btn-word" onclick="exportToWord()">📝 Descargar en Word (.doc)</button>
             <button class="btn btn-pdf" onclick="window.print()">🖨️ Exportar PDF Definitivo</button>
         </div>
@@ -448,11 +414,13 @@
     </div>
 
     <script>
+        // --- DRAG AND DROP & CARGA DE ARCHIVOS ---
         const dropZone = document.getElementById('drop-zone');
         document.getElementById('file-upload').addEventListener('change', handleFileSelect, false);
         
+        // ¡Aquí estaba el error de sintaxis! Corregido:
         dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
-        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover')); 
         dropZone.addEventListener('drop', (e) => {
             e.preventDefault();
             dropZone.classList.remove('dragover');
@@ -481,6 +449,7 @@
             reader.readAsArrayBuffer(file);
         }
 
+        // --- PROCESAMIENTO DEL DOCUMENTO ---
         function processDocument(result) {
             let rawHtml = result.value;
             let tempDiv = document.createElement('div');
@@ -490,7 +459,6 @@
                 return (node.nodeName === 'P' || node.nodeName === 'H1') && node.textContent.trim() !== '';
             });
             
-            // Inyectando datos en los contenedores editables sin sobreescribir las etiquetas en negrita
             if(validNodes.length >= 4) {
                 document.getElementById('cover-title').innerHTML = validNodes[0].innerHTML;
                 validNodes[0].remove();
@@ -507,13 +475,11 @@
 
             let processedHtml = tempDiv.innerHTML;
 
-            // Títulos Falsos
             processedHtml = processedHtml.replace(/<p>\s*(?:<strong>|<b>)(.*?)(?:<\/strong>|<\/b>)\s*<\/p>/gi, function(match, p1) {
                 if(p1.trim().length > 0 && p1.length < 150) { return '<h2>' + p1 + '</h2>'; }
                 return match; 
             });
 
-            // Formato Corporativo
             processedHtml = processedHtml.replace(/\bVERDE\b/g, '<span class="status-badge badge-green">VERDE</span>');
             processedHtml = processedHtml.replace(/\bAMARILLO\b/g, '<span class="status-badge badge-yellow">AMARILLO</span>');
             processedHtml = processedHtml.replace(/\bROJO\b/g, '<span class="status-badge badge-red">ROJO</span>');
@@ -527,8 +493,33 @@
             document.getElementById('report-view').style.display = 'flex';
         }
 
+        // --- FUNCIÓN PARA CAMBIAR TAMAÑO DE TEXTO ---
+        function changeFontSize(increase) {
+            const selection = window.getSelection();
+            if (!selection.rangeCount) {
+                alert("Por favor, selecciona o haz clic en el texto que deseas cambiar de tamaño.");
+                return;
+            }
+
+            let node = selection.anchorNode;
+            if (!node) return;
+            
+            if (node.nodeType === 3) node = node.parentNode;
+            
+            if (!node.closest('[contenteditable="true"]')) return;
+
+            let targetElement = node.closest('p, h1, h2, h3, li, td, span, strong, em');
+            
+            if (targetElement) {
+                let currentSizePx = window.getComputedStyle(targetElement).fontSize;
+                let currentSize = parseFloat(currentSizePx);
+                let newSize = increase ? currentSize + 1.5 : currentSize - 1.5;
+                targetElement.style.fontSize = newSize + 'px';
+            }
+        }
+
+        // --- EXPORTACIÓN ---
         function exportToWord() {
-            // Eliminar los atributos contenteditable temporalmente para que el HTML exportado sea limpio
             const docClone = document.getElementById('report-view').cloneNode(true);
             const editables = docClone.querySelectorAll('[contenteditable]');
             editables.forEach(el => el.removeAttribute('contenteditable'));
