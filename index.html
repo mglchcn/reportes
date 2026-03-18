@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador Profesional de Informes - CENGOB</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+    <!-- Mammoth.js para leer archivos .docx -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
+    
+    <style>
+        /* --- VARIABLES GLOBALES --- */
+        :root {
+            --primary-color: #0f172a; /* Azul Marino muy oscuro */
+            --secondary-color: #1e3a8a; /* Azul Institucional */
+            --accent-color: #d97706; /* Dorado oscuro */
+            --text-main: #334155;
+            --text-dark: #0f172a;
+            --bg-light: #f8fafc;
+            --border-color: #cbd5e1;
+            --font-sans: 'Montserrat', sans-serif;
+            --font-serif: 'Merriweather', serif;
+        }
+
+        body {
+            background-color: #e2e8f0;
+            margin: 0;
+            padding: 0;
+            font-family: var(--font-sans);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- PANTALLA DE CARGA (UI) --- */
+        #upload-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            width: 100%;
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            padding: 20px;
+            box-sizing: border-box;
+            color: white;
+        }
+
+        .upload-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 2px dashed rgba(255, 255, 255, 0.4);
+            border-radius: 16px;
+            padding: 60px 50px;
+            max-width: 650px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .upload-container:hover, .upload-container.dragover {
+            border-color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .upload-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 15px;
+            letter-spacing: -0.5px;
+        }
+
+        .upload-subtitle {
+            color: #cbd5e1;
+            margin-bottom: 35px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .custom-file-upload {
+            background-color: var(--accent-color);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 16px;
+            display: inline-block;
+            transition: background 0.2s, transform 0.1s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .custom-file-upload:hover { background-color: #b45309; transform: translateY(-2px); }
+        input[type="file"] { display: none; }
+
+        /* --- BARRA DE HERRAMIENTAS --- */
+        #toolbar {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%;
+            background-color: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            padding: 15px 40px;
+            box-sizing: border-box;
+            z-index: 100;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toolbar-brand {
+            font-weight: 800;
+            font-size: 20px;
+            color: var(--primary-color);
+        }
+
+        .toolbar-brand span { color: #94a3b8; font-weight: 400; font-size: 16px; margin-left: 8px; }
+
+        .toolbar-group { display: flex; gap: 15px; }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            font-family: var(--font-sans);
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn-pdf { background-color: #ef4444; color: white; }
+        .btn-pdf:hover { background-color: #dc2626; }
+        .btn-word { background-color: #2563eb; color: white; }
+        .btn-word:hover { background-color: #1d4ed8; }
+
+        /* --- VISOR DEL DOCUMENTO --- */
+        #report-view {
+            display: none;
+            margin-top: 100px;
+            margin-bottom: 50px;
+            width: 100%;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Configuración de páginas A4 */
+        .page {
+            background-color: #ffffff;
+            width: 21cm;
+            min-height: 29.7cm;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        /* --- CARÁTULA (COVER PAGE) --- */
+        .cover-page {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 3cm;
+            background-color: var(--bg-light);
+            border-top: 25px solid var(--primary-color);
+            border-bottom: 25px solid var(--accent-color);
+        }
+
+        .cover-logo-text {
+            font-family: var(--font-sans);
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--primary-color);
+            margin-bottom: 4cm;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 10px;
+            display: inline-block;
+        }
+
+        .cover-title-box {
+            background-color: white;
+            padding: 40px;
+            border-left: 8px solid var(--primary-color);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            margin-bottom: 3cm;
+        }
+
+        #cover-title {
+            margin: 0;
+            font-family: var(--font-serif);
+            font-size: 32px;
+            color: var(--text-dark);
+            font-weight: 700;
+            line-height: 1.3;
+        }
+
+        .cover-meta {
+            font-family: var(--font-sans);
+            font-size: 16px;
+            color: #475569;
+            margin-top: 30px;
+            line-height: 1.8;
+        }
+
+        .cover-meta strong { color: var(--text-dark); }
+
+        /* --- PÁGINAS DE CONTENIDO --- */
+        .content-page {
+            padding: 2.5cm 3cm;
+            font-family: var(--font-serif);
+            font-size: 11pt;
+            line-height: 1.7;
+            text-align: justify;
+        }
+
+        .internal-header {
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 10px;
+            margin-bottom: 35px;
+            display: flex;
+            justify-content: space-between;
+            font-family: var(--font-sans);
+            font-size: 9pt;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Tipografía Interna */
+        #doc-body h1, #doc-body h2, #doc-body h3 {
+            font-family: var(--font-sans);
+            page-break-after: avoid;
+        }
+
+        #doc-body h1 {
+            font-size: 16pt;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 5px;
+            margin-top: 40px;
+            margin-bottom: 20px;
+        }
+
+        #doc-body h2 {
+            font-size: 13pt;
+            color: var(--text-dark);
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        #doc-body p { margin-bottom: 15px; margin-top: 0; }
+        #doc-body ul { margin-bottom: 20px; padding-left: 25px; }
+        #doc-body li { margin-bottom: 8px; }
+
+        /* --- ELEMENTOS DE DISEÑO PROFESIONAL --- */
+        /* Recuadro para diagnósticos o textos importantes */
+        .highlight-box {
+            background-color: #f1f5f9;
+            border-left: 4px solid var(--accent-color);
+            padding: 15px 20px;
+            margin: 20px 0;
+            font-family: var(--font-sans);
+            font-size: 10.5pt;
+            color: var(--text-dark);
+        }
+
+        /* Semáforos estéticos */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-family: var(--font-sans);
+            font-weight: 700;
+            font-size: 9pt;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .badge-red { background-color: #dc2626; }
+        .badge-yellow { background-color: #d97706; }
+        .badge-green { background-color: #059669; }
+
+        /* Tablas Corporativas */
+        #doc-body table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-family: var(--font-sans);
+            font-size: 10pt;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            page-break-inside: auto;
+        }
+
+        #doc-body tr { page-break-inside: avoid; page-break-after: auto; }
+
+        #doc-body th, #doc-body td {
+            border: 1px solid var(--border-color);
+            padding: 12px;
+            text-align: left;
+            vertical-align: top;
+        }
+
+        #doc-body th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        /* --- ESTILOS DE IMPRESIÓN / PDF --- */
+        @media print {
+            body { background-color: #ffffff; padding: 0; margin: 0; }
+            #upload-screen, #toolbar { display: none !important; }
+            #report-view { margin: 0; display: block !important; }
+            .page {
+                box-shadow: none;
+                margin: 0;
+                width: 21cm;
+                height: 29.7cm; /* Forzar alto de página */
+                page-break-after: always;
+            }
+            .page:last-child { page-break-after: auto; }
+            
+            /* Ajustes para que la carátula no tenga márgenes blancos indeseados al imprimir */
+            .cover-page {
+                padding: 3cm;
+                height: 29.7cm;
+                border-top: 25px solid var(--primary-color) !important;
+                border-bottom: 25px solid var(--accent-color) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA DE CARGA -->
+    <div id="upload-screen">
+        <div class="upload-container" id="drop-zone">
+            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="64" height="64" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <h1 class="upload-title">Generador de Informes CENGOB</h1>
+            <p class="upload-subtitle">Sube un documento Word (.docx).<br>El sistema creará automáticamente la carátula y aplicará el formato profesional.</p>
+            
+            <label class="custom-file-upload">
+                <input type="file" id="file-upload" accept=".docx" />
+                Seleccionar Documento Word
+            </label>
+        </div>
+    </div>
+
+    <!-- BARRA DE HERRAMIENTAS -->
+    <div id="toolbar">
+        <div class="toolbar-brand">
+            CENGOB <span>| Modo Vista Previa</span>
+        </div>
+        <div class="toolbar-group">
+            <button class="btn btn-word" onclick="exportToWord()">📝 Exportar a Word (.doc)</button>
+            <button class="btn btn-pdf" onclick="window.print()">🖨️ Exportar a PDF</button>
+        </div>
+    </div>
+
+    <!-- CONTENEDOR PARA EXPORTACIÓN Y VISTA -->
+    <div id="export-container">
+        <div id="report-view">
+            
+            <!-- PÁGINA 1: CARÁTULA GENERADA AUTOMÁTICAMENTE -->
+            <div class="page cover-page">
+                <div class="cover-logo-text">Viceministerio de Coordinación de la Gestión Pública<br>Centro de Gobierno (CENGOB)</div>
+                
+                <div class="cover-title-box">
+                    <h1 id="cover-title">Informe Técnico de Gestión</h1>
+                </div>
+                
+                <div class="cover-meta">
+                    <p id="cover-directed"><strong>Dirigido a:</strong> [Extrayendo del documento...]</p>
+                    <p id="cover-date"><strong>Fecha:</strong> [Extrayendo del documento...]</p>
+                    <p><strong>Elaborado por:</strong> Equipo CENGOB</p>
+                </div>
+            </div>
+
+            <!-- PÁGINA 2+: CONTENIDO DEL DOCUMENTO -->
+            <div class="page content-page">
+                <div class="internal-header">
+                    <span>Informe Técnico de Detalle</span>
+                    <span style="color: var(--primary-color);">INF-CUA-CENGOB/MSYD</span>
+                </div>
+                
+                <div id="doc-body">
+                    <!-- El contenido formateado se inyectará aquí -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- DRAG AND DROP & FILE UPLOAD ---
+        const dropZone = document.getElementById('drop-zone');
+        document.getElementById('file-upload').addEventListener('change', handleFileSelect, false);
+        
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) {
+                handleFileSelect({ target: { files: e.dataTransfer.files } });
+            }
+        });
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                mammoth.convertToHtml({arrayBuffer: e.target.result})
+                    .then(processDocument)
+                    .catch(err => alert("Error procesando Word: " + err.message));
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // --- PROCESAMIENTO Y FORMATEO DEL DOCUMENTO ---
+        function processDocument(result) {
+            let rawHtml = result.value;
+            
+            // 1. Crear un contenedor temporal para manipular el HTML extraído
+            let tempDiv = document.createElement('div');
+            tempDiv.innerHTML = rawHtml;
+            
+            // 2. Extraer datos para la carátula (Asumiendo que los primeros 3 párrafos son el título, dirigido a, y fecha)
+            let paragraphs = tempDiv.querySelectorAll('p, h1');
+            
+            if(paragraphs.length >= 3) {
+                // Título principal
+                document.getElementById('cover-title').innerHTML = paragraphs[0].innerHTML;
+                paragraphs[0].remove(); // Quitarlo del contenido principal
+                
+                // Dirigido a
+                document.getElementById('cover-directed').innerHTML = "<strong>" + paragraphs[1].innerHTML + "</strong>";
+                paragraphs[1].remove();
+
+                // Fecha
+                document.getElementById('cover-date').innerHTML = "<strong>" + paragraphs[2].innerHTML + "</strong>";
+                paragraphs[2].remove();
+            }
+
+            // 3. Mejoras visuales en el contenido restante
+            let processedHtml = tempDiv.innerHTML;
+
+            // Formateo de Semáforos
+            processedHtml = processedHtml.replace(/\bVERDE\b/g, '<span class="status-badge badge-green">VERDE</span>');
+            processedHtml = processedHtml.replace(/\bAMARILLO\b/g, '<span class="status-badge badge-yellow">AMARILLO</span>');
+            processedHtml = processedHtml.replace(/\bROJO\b/g, '<span class="status-badge badge-red">ROJO</span>');
+
+            // Convertir párrafos que empiezan con "Diagnóstico Situacional:" o "Resumen Narrativo:" en recuadros
+            processedHtml = processedHtml.replace(/<p><strong>Diagnóstico Situacional:<\/strong>(.*?)<\/p>/g, '<div class="highlight-box"><strong>Diagnóstico Situacional:</strong>$1</div>');
+            processedHtml = processedHtml.replace(/<p>Resumen Narrativo:(.*?)<\/p>/g, '<div class="highlight-box"><strong>Resumen Narrativo:</strong>$1</div>');
+
+            // 4. Inyectar el resultado formateado
+            document.getElementById('doc-body').innerHTML = processedHtml;
+
+            // 5. Cambiar pantallas
+            document.getElementById('upload-screen').style.display = 'none';
+            document.getElementById('toolbar').style.display = 'flex';
+            document.getElementById('report-view').style.display = 'flex';
+        }
+
+        // --- EXPORTAR A WORD (.doc) ---
+        function exportToWord() {
+            // Recolectar el HTML del reporte
+            const content = document.getElementById('report-view').innerHTML;
+            
+            // Construir un archivo HTML compatible con MS Word
+            // Se inyectan estilos básicos en línea para que Word los reconozca al abrir el archivo
+            const header = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head><meta charset='utf-8'><title>Exportación de Informe</title>
+            <style>
+                body { font-family: 'Times New Roman', serif; color: #000; }
+                h1, h2, h3 { font-family: Arial, sans-serif; color: #0f172a; }
+                .cover-page { text-align: center; margin-bottom: 50px; page-break-after: always; border: 5px solid #1e3a8a; padding: 20px; }
+                .internal-header { border-bottom: 1px solid #1e3a8a; font-size: 10pt; color: gray; margin-bottom: 20px; }
+                table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+                th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+                th { background-color: #0f172a; color: white; }
+                .highlight-box { border-left: 3px solid #d97706; background-color: #f8fafc; padding: 10px; margin: 15px 0; }
+                .badge-green { color: green; font-weight: bold; }
+                .badge-yellow { color: orange; font-weight: bold; }
+                .badge-red { color: red; font-weight: bold; }
+            </style>
+            </head><body>`;
+            const footer = "</body></html>";
+            
+            const sourceHTML = header + content + footer;
+            
+            // Crear el Blob
+            const blob = new Blob(['\ufeff', sourceHTML], { type: 'application/msword' });
+            const url = URL.createObjectURL(blob);
+            
+            // Forzar descarga
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'Informe_Corporativo_CENGOB.doc';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
