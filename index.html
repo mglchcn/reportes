@@ -28,7 +28,7 @@
         }
 
         body {
-            background-color: #e2e8f0;
+            background-color: #cbd5e1; /* Fondo gris para contrastar con las hojas blancas */
             margin: 0;
             padding: 0;
             font-family: var(--font-sans);
@@ -37,7 +37,6 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            /* Evitar desbordes a nivel global */
             overflow-x: hidden; 
         }
 
@@ -73,18 +72,9 @@
             background: rgba(255, 255, 255, 0.15);
         }
 
-        .upload-title {
-            font-size: 28px;
-            font-weight: 800;
-            margin-bottom: 15px;
-        }
-
-        .upload-subtitle {
-            color: #cbd5e1;
-            margin-bottom: 35px;
-            font-size: 16px;
-            line-height: 1.5;
-        }
+        .upload-title { font-size: 28px; font-weight: 800; margin-bottom: 15px; }
+        .upload-subtitle { color: #cbd5e1; margin-bottom: 35px; font-size: 16px; line-height: 1.5; }
+        .upload-icon { margin-bottom: 20px; opacity: 0.8; }
 
         .custom-file-upload {
             background-color: var(--accent-color);
@@ -97,30 +87,25 @@
             display: inline-block;
             transition: background 0.2s, transform 0.1s;
         }
-
         .custom-file-upload:hover { background-color: #5c360e; transform: translateY(-2px); }
         input[type="file"] { display: none; }
-        .upload-icon { margin-bottom: 20px; opacity: 0.8; }
 
         /* --- BARRA DE HERRAMIENTAS --- */
         #toolbar {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%;
+            height: 65px; /* Altura fija para el cálculo del sticky header */
             background-color: #ffffff;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-            padding: 15px 40px;
+            padding: 0 40px;
             box-sizing: border-box;
-            z-index: 100;
+            z-index: 1000;
             justify-content: space-between;
             align-items: center;
         }
 
-        .toolbar-brand {
-            font-weight: 800;
-            font-size: 20px;
-            color: var(--primary-color);
-        }
+        .toolbar-brand { font-weight: 800; font-size: 20px; color: var(--primary-color); }
         .toolbar-brand span { color: #94a3b8; font-weight: 400; font-size: 16px; margin-left: 8px; }
         .toolbar-group { display: flex; gap: 15px; }
 
@@ -132,14 +117,16 @@
             border: none;
             font-family: var(--font-sans);
             font-size: 14px;
+            transition: transform 0.1s;
         }
+        .btn:active { transform: scale(0.95); }
         .btn-pdf { background-color: #ef4444; color: white; }
         .btn-word { background-color: #2563eb; color: white; }
 
         /* --- VISOR DEL DOCUMENTO --- */
         #report-view {
             display: none;
-            margin-top: 100px;
+            margin-top: 95px; /* Espacio para el toolbar */
             margin-bottom: 50px;
             width: 100%;
             flex-direction: column;
@@ -153,6 +140,26 @@
             box-sizing: border-box;
             position: relative;
             margin-bottom: 30px;
+        }
+
+        /* --- ESTILOS DE EDICIÓN --- */
+        [contenteditable="true"] {
+            outline: none;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            border-radius: 4px;
+        }
+        
+        /* Efecto hover sólo en pantalla, no en impresión */
+        @media screen {
+            [contenteditable="true"]:hover {
+                background-color: rgba(116, 70, 18, 0.05);
+                box-shadow: 0 0 0 2px rgba(116, 70, 18, 0.2);
+                cursor: text;
+            }
+            [contenteditable="true"]:focus {
+                background-color: #ffffff;
+                box-shadow: 0 0 0 2px var(--accent-color);
+            }
         }
 
         /* --- CARÁTULA --- */
@@ -209,6 +216,7 @@
             color: var(--text-dark);
             font-weight: 700;
             line-height: 1.3;
+            padding: 5px; /* Para la caja editable */
         }
 
         .cover-meta {
@@ -218,26 +226,42 @@
             margin-top: auto;
             line-height: 1.8;
         }
+        .cover-meta strong { color: var(--text-dark); }
+        .editable-line { display: inline-block; min-width: 200px; padding: 2px 5px; }
 
-        /* --- CONTENIDO INTERNO --- */
+        /* --- CONTENIDO INTERNO Y GUÍA VISUAL --- */
         .content-page {
             padding: 0; 
             min-height: var(--page-height);
         }
 
-        .print-table {
-            width: 100%;
-            border-collapse: collapse;
-            border: none;
-            table-layout: fixed; /* Previene que la tabla expanda el contenedor */
-        }
-        .print-table td, .print-table th {
-            border: none;
-            padding: 0;
-            vertical-align: top;
+        /* SIMULADOR DE HOJAS EN PANTALLA: Fondo blanco con cortes grises oscuros */
+        @media screen {
+            .content-page {
+                background-color: transparent;
+                background-image: repeating-linear-gradient(
+                    to bottom,
+                    #ffffff,
+                    #ffffff calc(var(--page-height) - 15px),
+                    #94a3b8 calc(var(--page-height) - 15px),
+                    #94a3b8 var(--page-height)
+                );
+            }
+            
+            /* ENCABEZADO PEGAJOSO (Sticky) PARA LA EDICIÓN */
+            thead td {
+                position: sticky;
+                top: 65px; /* Altura de la barra de herramientas */
+                background-color: #ffffff;
+                z-index: 10;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            }
         }
 
-        .header-space-content { padding: 2.5cm 3cm 0.5cm 3cm; }
+        .print-table { width: 100%; border-collapse: collapse; border: none; }
+        .print-table td, .print-table th { border: none; padding: 0; vertical-align: top; }
+
+        .header-space-content { padding: 2cm 3cm 0.5cm 3cm; }
         .footer-space-content { padding: 0.5cm 3cm 2cm 3cm; }
         
         #doc-body-container {
@@ -248,108 +272,60 @@
             text-align: justify;
         }
 
-        /* CONTROL DE DESBORDES (ANTI-OVERFLOW) */
+        /* ZONA EDITABLE DEL CUERPO */
         #doc-body {
-            word-wrap: break-word; /* Rompe palabras ultra largas como URLs */
+            word-wrap: break-word;
             overflow-wrap: break-word;
+            padding: 10px; /* Margen para el borde punteado al editar */
         }
         
-        #doc-body img {
-            max-width: 100%; /* Imágenes nunca rebasarán el margen */
-            height: auto;
-        }
+        #doc-body img { max-width: 100%; height: auto; page-break-inside: avoid; }
 
-        /* Tablas internas de Word */
         #doc-body table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 25px 0;
-            font-family: var(--font-sans);
-            font-size: 9pt; /* Letra un poco más pequeña para que quepa bien */
-            background-color: white;
-            border: 1px solid var(--border-color);
-            table-layout: fixed; /* Fuerza a las columnas a respetar el ancho de la hoja */
-            word-wrap: break-word;
+            width: 100%; border-collapse: collapse; margin: 25px 0;
+            font-family: var(--font-sans); font-size: 9pt; background-color: white;
+            border: 1px solid var(--border-color); table-layout: fixed; 
+            word-wrap: break-word; page-break-inside: avoid;
         }
         #doc-body th, #doc-body td {
-            border: 1px solid var(--border-color);
-            padding: 8px;
-            text-align: left;
-            vertical-align: top;
-            overflow: hidden;
+            border: 1px solid var(--border-color); padding: 8px;
+            text-align: left; vertical-align: top; overflow: hidden;
         }
-        #doc-body th {
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: 600;
-        }
+        #doc-body th { background-color: var(--primary-color); color: white; font-weight: 600; }
+        #doc-body tr { page-break-inside: avoid; }
 
         .internal-header {
-            border-bottom: 2px solid var(--primary-color);
-            padding-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-sans);
-            font-size: 9pt;
-            font-weight: 700;
-            color: #64748b;
-            text-transform: uppercase;
+            border-bottom: 2px solid var(--primary-color); padding-bottom: 10px;
+            display: flex; justify-content: space-between; font-family: var(--font-sans);
+            font-size: 9pt; font-weight: 700; color: #64748b; text-transform: uppercase;
         }
 
         .internal-footer {
-            border-top: 1px solid var(--border-color);
-            padding-top: 10px;
-            display: flex;
-            justify-content: space-between;
-            font-family: var(--font-sans);
-            font-size: 8pt;
-            color: #94a3b8;
+            border-top: 1px solid var(--border-color); padding-top: 10px;
+            display: flex; justify-content: space-between; font-family: var(--font-sans);
+            font-size: 8pt; color: #94a3b8;
         }
 
-        /* Títulos */
-        #doc-body h1, #doc-body h2, #doc-body h3 {
-            font-family: var(--font-sans);
-            page-break-after: avoid; 
-        }
+        #doc-body h1, #doc-body h2, #doc-body h3 { font-family: var(--font-sans); page-break-after: avoid; }
         #doc-body h1 {
-            font-size: 15pt;
-            color: var(--primary-color);
-            text-transform: uppercase;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 5px;
-            margin-top: 40px;
-            margin-bottom: 20px;
+            font-size: 15pt; color: var(--primary-color); text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color); padding-bottom: 5px;
+            margin-top: 40px; margin-bottom: 20px;
         }
-        #doc-body h2 {
-            font-size: 13pt;
-            color: var(--text-dark);
-            margin-top: 30px;
-            margin-bottom: 15px;
-            font-weight: 700;
-        }
-        #doc-body p { margin-bottom: 15px; margin-top: 0; }
+        #doc-body h2 { font-size: 13pt; color: var(--text-dark); margin-top: 30px; margin-bottom: 15px; font-weight: 700; }
+        #doc-body p { margin-bottom: 15px; margin-top: 0; page-break-inside: avoid; }
         #doc-body ul { margin-bottom: 20px; padding-left: 25px; }
+        #doc-body li { page-break-inside: avoid; }
 
-        /* Elementos Destacados */
         .highlight-box {
-            background-color: #f1f5f9;
-            border-left: 4px solid var(--accent-color);
-            padding: 15px 20px;
-            margin: 20px 0;
-            font-family: var(--font-sans);
-            font-size: 10.5pt;
-            color: var(--text-dark);
-            page-break-inside: avoid;
+            background-color: #f1f5f9; border-left: 4px solid var(--accent-color);
+            padding: 15px 20px; margin: 20px 0; font-family: var(--font-sans); 
+            font-size: 10.5pt; color: var(--text-dark); page-break-inside: avoid;
         }
 
         .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 4px;
-            font-family: var(--font-sans);
-            font-weight: 700;
-            font-size: 9pt;
-            color: white;
+            display: inline-block; padding: 4px 10px; border-radius: 4px;
+            font-family: var(--font-sans); font-weight: 700; font-size: 9pt; color: white;
         }
         .badge-red { background-color: #dc2626; }
         .badge-yellow { background-color: #d97706; }
@@ -357,27 +333,15 @@
 
         /* --- ESTILOS DE IMPRESIÓN --- */
         @media print {
-            @page {
-                size: letter portrait;
-                margin: 0; /* Quita URLs y Fechas de Chrome/Edge */
-            }
-            body { 
-                background-color: #ffffff; 
-                -webkit-print-color-adjust: exact; 
-                print-color-adjust: exact;
-            }
+            @page { size: letter portrait; margin: 0; }
+            body { background-color: #ffffff; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             #upload-screen, #toolbar { display: none !important; }
             #report-view { margin: 0; display: block !important; }
             
-            .page {
-                box-shadow: none;
-                margin: 0;
-                width: var(--page-width);
-            }
+            .page { box-shadow: none; margin: 0; width: var(--page-width); }
             
             .cover-page {
-                height: var(--page-height); 
-                page-break-after: always;
+                height: var(--page-height); page-break-after: always;
                 border-top: 25px solid var(--primary-color) !important;
                 border-bottom: 25px solid var(--accent-color) !important;
             }
@@ -385,10 +349,14 @@
             thead { display: table-header-group; }
             tfoot { display: table-footer-group; }
             
-            .cover-header-logos {
-                display: flex !important;
-                justify-content: space-between !important;
-            }
+            /* Al imprimir desactivamos la sombra y la posición sticky del encabezado */
+            thead td { position: static !important; box-shadow: none !important; }
+            
+            .cover-header-logos { display: flex !important; justify-content: space-between !important; }
+            .content-page { background-image: none !important; }
+            
+            /* Quitamos padding extra del área de edición al imprimir */
+            #doc-body { padding: 0; }
         }
     </style>
 </head>
@@ -398,7 +366,7 @@
         <div class="upload-container" id="drop-zone">
             <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="64" height="64" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             <h1 class="upload-title">Generador de Informes CENGOB</h1>
-            <p class="upload-subtitle">Sube un documento Word (.docx).<br>El sistema ajustará el formato en Tamaño Carta y corregirá desbordes.</p>
+            <p class="upload-subtitle">Sube un documento Word (.docx).<br>El documento será <strong>completamente editable</strong> en la vista previa.</p>
             
             <label class="custom-file-upload">
                 <input type="file" id="file-upload" accept=".docx" />
@@ -409,11 +377,11 @@
 
     <div id="toolbar">
         <div class="toolbar-brand">
-            CENGOB <span>| Modo Vista Previa</span>
+            CENGOB <span>| Modo Edición</span>
         </div>
         <div class="toolbar-group">
-            <button class="btn btn-word" onclick="exportToWord()">📝 Exportar a Word (.doc)</button>
-            <button class="btn btn-pdf" onclick="window.print()">🖨️ Exportar a PDF Lpio.</button>
+            <button class="btn btn-word" onclick="exportToWord()">📝 Descargar en Word (.doc)</button>
+            <button class="btn btn-pdf" onclick="window.print()">🖨️ Exportar PDF Definitivo</button>
         </div>
     </div>
 
@@ -427,11 +395,12 @@
                 </div>
                 <div class="cover-logo-text">Viceministerio de Coordinación de la Gestión Pública<br>Centro de Gobierno (CENGOB)</div>
                 <div class="cover-title-box">
-                    <h1 id="cover-title">Informe Técnico de Gestión</h1>
+                    <h1 id="cover-title" contenteditable="true">Informe Técnico de Gestión</h1>
                 </div>
                 <div class="cover-meta">
-                    <p id="cover-directed"><strong>Dirigido a:</strong> [Extrayendo...]</p>
-                    <p id="cover-date"><strong>Fecha:</strong> [Extrayendo...]</p>
+                    <p><strong>Dirigido a:</strong> <span id="cover-directed" class="editable-line" contenteditable="true">[Extrayendo...]</span></p>
+                    <p><strong>Referencia:</strong> <span id="cover-ref" class="editable-line" contenteditable="true">[Extrayendo...]</span></p>
+                    <p><strong>Fecha:</strong> <span id="cover-date" class="editable-line" contenteditable="true">[Extrayendo...]</span></p>
                     <p><strong>Elaborado por:</strong> Equipo CENGOB</p>
                 </div>
             </div>
@@ -443,7 +412,7 @@
                             <td>
                                 <div class="header-space-content">
                                     <div class="internal-header">
-                                        <span>Informe Técnico</span>
+                                        <span contenteditable="true">Informe Técnico</span>
                                         <span style="color: var(--primary-color);">CENTRO DE GOBIERNO</span>
                                     </div>
                                 </div>
@@ -454,7 +423,7 @@
                         <tr>
                             <td>
                                 <div id="doc-body-container">
-                                    <div id="doc-body">
+                                    <div id="doc-body" contenteditable="true">
                                         </div>
                                 </div>
                             </td>
@@ -497,7 +466,6 @@
             if (!file) return;
             const reader = new FileReader();
             reader.onload = function(e) {
-                // Configurar Mammoth para mapear estilos en español si los hay
                 const options = {
                     styleMap: [
                         "p[style-name='Título'] => h1:fresh",
@@ -518,34 +486,34 @@
             let tempDiv = document.createElement('div');
             tempDiv.innerHTML = rawHtml;
             
-            // 1. Filtrar nodos vacíos al inicio (soluciona el problema de saltos de línea al inicio del Word)
             let validNodes = Array.from(tempDiv.childNodes).filter(node => {
                 return (node.nodeName === 'P' || node.nodeName === 'H1') && node.textContent.trim() !== '';
             });
             
-            if(validNodes.length >= 3) {
+            // Inyectando datos en los contenedores editables sin sobreescribir las etiquetas en negrita
+            if(validNodes.length >= 4) {
                 document.getElementById('cover-title').innerHTML = validNodes[0].innerHTML;
                 validNodes[0].remove();
                 
-                document.getElementById('cover-directed').innerHTML = "<strong>" + validNodes[1].innerHTML + "</strong>";
+                document.getElementById('cover-directed').innerHTML = validNodes[1].innerHTML;
                 validNodes[1].remove();
 
-                document.getElementById('cover-date').innerHTML = "<strong>" + validNodes[2].innerHTML + "</strong>";
+                document.getElementById('cover-ref').innerHTML = validNodes[2].innerHTML;
                 validNodes[2].remove();
+
+                document.getElementById('cover-date').innerHTML = validNodes[3].innerHTML;
+                validNodes[3].remove();
             }
 
             let processedHtml = tempDiv.innerHTML;
 
-            // 2. FORZAR RECONOCIMIENTO DE TÍTULOS FALSOS
-            // Si hay un párrafo que contiene únicamente texto en negrita y es corto (menos de 150 caracteres), convertir a <h2>
+            // Títulos Falsos
             processedHtml = processedHtml.replace(/<p>\s*(?:<strong>|<b>)(.*?)(?:<\/strong>|<\/b>)\s*<\/p>/gi, function(match, p1) {
-                if(p1.trim().length > 0 && p1.length < 150) {
-                    return '<h2>' + p1 + '</h2>';
-                }
-                return match; // Si es muy largo, dejarlo como párrafo normal
+                if(p1.trim().length > 0 && p1.length < 150) { return '<h2>' + p1 + '</h2>'; }
+                return match; 
             });
 
-            // 3. Formateo de elementos corporativos
+            // Formato Corporativo
             processedHtml = processedHtml.replace(/\bVERDE\b/g, '<span class="status-badge badge-green">VERDE</span>');
             processedHtml = processedHtml.replace(/\bAMARILLO\b/g, '<span class="status-badge badge-yellow">AMARILLO</span>');
             processedHtml = processedHtml.replace(/\bROJO\b/g, '<span class="status-badge badge-red">ROJO</span>');
@@ -560,7 +528,12 @@
         }
 
         function exportToWord() {
-            const content = document.getElementById('report-view').innerHTML;
+            // Eliminar los atributos contenteditable temporalmente para que el HTML exportado sea limpio
+            const docClone = document.getElementById('report-view').cloneNode(true);
+            const editables = docClone.querySelectorAll('[contenteditable]');
+            editables.forEach(el => el.removeAttribute('contenteditable'));
+
+            const content = docClone.innerHTML;
             const header = `
             <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
             <head><meta charset='utf-8'><title>Exportación de Informe</title>
