@@ -7,15 +7,14 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
-    <!-- Mammoth.js para leer archivos .docx -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js"></script>
     
     <style>
         /* --- VARIABLES GLOBALES --- */
         :root {
-            --primary-color: #0f172a; /* Azul Marino muy oscuro */
+            --primary-color: #421e01; /* Azul Marino muy oscuro */
             --secondary-color: #1e3a8a; /* Azul Institucional */
-            --accent-color: #d97706; /* Dorado oscuro */
+            --accent-color: #744612; /* Dorado oscuro */
             --text-main: #334155;
             --text-dark: #0f172a;
             --bg-light: #f8fafc;
@@ -44,7 +43,7 @@
             align-items: center;
             height: 100vh;
             width: 100%;
-            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+            background: linear-gradient(135deg, #3a1802 0%, #aa7502 100%);
             padding: 20px;
             box-sizing: border-box;
             color: white;
@@ -97,6 +96,8 @@
 
         .custom-file-upload:hover { background-color: #b45309; transform: translateY(-2px); }
         input[type="file"] { display: none; }
+
+        .upload-icon { margin-bottom: 20px; opacity: 0.8; }
 
         /* --- BARRA DE HERRAMIENTAS --- */
         #toolbar {
@@ -170,14 +171,32 @@
             border-bottom: 25px solid var(--accent-color);
         }
 
+        /* --- NUEVO: Contenedor para logos de carátula --- */
+        .cover-header-logos {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin-bottom: 1.5cm; /* Margen inferior antes de texto o título */
+        }
+
+        /* --- NUEVO: Estilo general para logos individuales --- */
+        .cover-header-logos img {
+            height: 60px; /* Ajusta este alto según tus necesidades */
+            width: auto;
+            max-width: 250px; /* Ancho máximo para no ocupar demasiado */
+            display: block;
+        }
+
         .cover-logo-text {
             font-family: var(--font-sans);
-            font-size: 14px;
-            font-weight: 800;
-            letter-spacing: 3px;
+            font-size: 10px;
+            font-weight: 500;
+            letter-spacing: 1px;
             text-transform: uppercase;
             color: var(--primary-color);
-            margin-bottom: 4cm;
+            /* Reducimos el margen inferior porque ahora están los logos arriba y el título abajo */
+            margin-bottom: 2.5cm;
             border-bottom: 2px solid var(--border-color);
             padding-bottom: 10px;
             display: inline-block;
@@ -262,7 +281,6 @@
         #doc-body li { margin-bottom: 8px; }
 
         /* --- ELEMENTOS DE DISEÑO PROFESIONAL --- */
-        /* Recuadro para diagnósticos o textos importantes */
         .highlight-box {
             background-color: #f1f5f9;
             border-left: 4px solid var(--accent-color);
@@ -273,7 +291,6 @@
             color: var(--text-dark);
         }
 
-        /* Semáforos estéticos */
         .status-badge {
             display: inline-block;
             padding: 4px 10px;
@@ -289,7 +306,6 @@
         .badge-yellow { background-color: #d97706; }
         .badge-green { background-color: #059669; }
 
-        /* Tablas Corporativas */
         #doc-body table {
             width: 100%;
             border-collapse: collapse;
@@ -326,12 +342,11 @@
                 box-shadow: none;
                 margin: 0;
                 width: 21cm;
-                height: 29.7cm; /* Forzar alto de página */
+                height: 27cm; /* Forzar alto de página */
                 page-break-after: always;
             }
             .page:last-child { page-break-after: auto; }
             
-            /* Ajustes para que la carátula no tenga márgenes blancos indeseados al imprimir */
             .cover-page {
                 padding: 3cm;
                 height: 29.7cm;
@@ -340,12 +355,19 @@
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
+
+            /* Forzar el layout de los logos en la carátula al imprimir */
+            .cover-header-logos {
+                display: flex !important;
+                justify-content: space-between !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
         }
     </style>
 </head>
 <body>
 
-    <!-- PANTALLA DE CARGA -->
     <div id="upload-screen">
         <div class="upload-container" id="drop-zone">
             <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="64" height="64" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
@@ -359,7 +381,6 @@
         </div>
     </div>
 
-    <!-- BARRA DE HERRAMIENTAS -->
     <div id="toolbar">
         <div class="toolbar-brand">
             CENGOB <span>| Modo Vista Previa</span>
@@ -370,12 +391,17 @@
         </div>
     </div>
 
-    <!-- CONTENEDOR PARA EXPORTACIÓN Y VISTA -->
     <div id="export-container">
         <div id="report-view">
             
-            <!-- PÁGINA 1: CARÁTULA GENERADA AUTOMÁTICAMENTE -->
             <div class="page cover-page">
+                
+                <div class="cover-header-logos">
+                    <img src="logovcgp.png" alt="Logo CENGOB Izquierdo">
+                    
+                    <img src="a.png" alt="Logo CENGOB Derecho">
+                </div>
+
                 <div class="cover-logo-text">Viceministerio de Coordinación de la Gestión Pública<br>Centro de Gobierno (CENGOB)</div>
                 
                 <div class="cover-title-box">
@@ -389,16 +415,14 @@
                 </div>
             </div>
 
-            <!-- PÁGINA 2+: CONTENIDO DEL DOCUMENTO -->
             <div class="page content-page">
                 <div class="internal-header">
-                    <span>Informe Técnico de Detalle</span>
-                    <span style="color: var(--primary-color);">INF-CUA-CENGOB/MSYD</span>
+                    <span>Informe Técnico</span>
+                    <span style="color: var(--primary-color);">CENTRO DE GOBIERNO
                 </div>
                 
                 <div id="doc-body">
-                    <!-- El contenido formateado se inyectará aquí -->
-                </div>
+                    </div>
             </div>
 
         </div>
@@ -492,6 +516,8 @@
                 body { font-family: 'Times New Roman', serif; color: #000; }
                 h1, h2, h3 { font-family: Arial, sans-serif; color: #0f172a; }
                 .cover-page { text-align: center; margin-bottom: 50px; page-break-after: always; border: 5px solid #1e3a8a; padding: 20px; }
+                /* Ocultar contenedor de logos en la exportación básica a Word si no se tienen URLs absolutas accesibles */
+                .cover-header-logos { display: none; } 
                 .internal-header { border-bottom: 1px solid #1e3a8a; font-size: 10pt; color: gray; margin-bottom: 20px; }
                 table { border-collapse: collapse; width: 100%; margin-top: 20px; }
                 th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
